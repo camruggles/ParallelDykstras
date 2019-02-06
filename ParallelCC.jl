@@ -56,17 +56,11 @@ function cyclic_triple_loop!(D::Matrix{Float64},E::Matrix{Float64},W::Matrix{Flo
                 old_triplet_corrections::Vector{Tuple{Int64, Float64}} = Bookshelf[c]
                 new_triplet_corrections::Vector{Tuple{Int64, Float64}} = newBookshelf[c]
 
-                numthreads::Int64 = Threads.nthreads()
-                threadnum::Int64 = c
                 start::Int64 = 1
                 endpoint::Int64 = round(Int64, ceil(m/2))
                 interval::Int = endpoint-start+1
 
-                threadrange::Int = ceil(Int64, interval/numthreads)
-                s::Int = start + threadrange*(threadnum-1)
-                e::Int = min(start + threadrange*threadnum -1, endpoint)
-
-                for iIter in s:e    #iIter::Int in 1:round(Int64, ceil(m/2))
+                for iIter in start+c-1:nthds:endpoint
                     kIter::Int = m-iIter+1
                     nowInd, BtDual = iterate(D, E, W, BtDual, iIter, kIter, o, n, A, B, old_triplet_corrections, new_triplet_corrections, nowInd)
                 end
@@ -82,23 +76,18 @@ function cyclic_triple_loop!(D::Matrix{Float64},E::Matrix{Float64},W::Matrix{Flo
             #Threads.@threads
             Threads.@threads for threadholder in 1:nthds
                 c::Int64 = Threads.threadid()
+
                 nowInd::Int64 = indexing[c]
                 BtDual::Float64 = Duals[c]
-                #new_triplet_corrections = nothing#::Array{Tuple, 1} = Tuple[]#Bookshelf[c]
                 old_triplet_corrections::Vector{Tuple{Int64, Float64}} = Bookshelf[c]
                 new_triplet_corrections::Vector{Tuple{Int64, Float64}} = newBookshelf[c]
 
-                numthreads::Int = Threads.nthreads()
-                threadnum::Int = c
                 start::Int = m
                 endpoint::Int = round(Int64,floor((m+r_endpoint)/2))
                 interval::Int = endpoint-start+1
 
-                threadrange::Int = ceil(Int64, interval/numthreads)
-                s::Int = start + threadrange*(threadnum-1)
-                e::Int = min(start + threadrange*threadnum -1, endpoint)
 
-                for iIter::Int in s:e #m:round(Int64,floor((m+r_endpoint)/2)) #thread shplit
+                for iIter::Int in start+c-1:nthds:endpoint
                     kIter::Int = r_endpoint-iIter+m
                     nowInd, BtDual = iterate(D, E, W, BtDual, iIter, kIter, o, n, A, B, old_triplet_corrections, new_triplet_corrections, nowInd)
                 end
