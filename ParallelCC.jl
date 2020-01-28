@@ -356,26 +356,11 @@ function Dykstra_CC_TFA(A::SparseMatrixCSC{Float64,Int64},W::Matrix{Float64},D::
             Ac = Vector{Tuple{Int64, Float64}}()
             push!(next_corrections, Ac)
         end
-  #=
-        println("\nPre iteration")
-        @show length(current_corrections)
-        @show length(current_corrections[1])
 
-        @show length(next_corrections)
-        @show length(next_corrections[1])
-  =#
         # First time through constraints
         cyclic_triple_loop!(D,E,W,current_corrections,next_corrections)
         cyclic_double_loop!(E,F,P,Q,W)
-  #=
-        println("\nPost iteration")
-        @show length(current_corrections)
-        @show length(current_corrections[1])
 
-        @show length(next_corrections)
-        @show length(next_corrections[1])
-        println("")
-  =#
 
         iter = 0
 
@@ -401,7 +386,6 @@ function Dykstra_CC_TFA(A::SparseMatrixCSC{Float64,Int64},W::Matrix{Float64},D::
 
                 # Update which corretions to make in this iteration
                 current_corrections = next_corrections
-      #death
                 next_corrections = Vector{Vector{Tuple{Int64, Float64}}}()
 
                 for i in 1:nthds
@@ -415,26 +399,12 @@ function Dykstra_CC_TFA(A::SparseMatrixCSC{Float64,Int64},W::Matrix{Float64},D::
                 end
 
                 # Visiting the O(n^3) metric constraints is the bottleneck
-        #=        println("\nPre iteration")
-                @show length(current_corrections)
-                @show length(current_corrections[1])
 
-                @show length(next_corrections)
-                @show length(next_corrections[1])
-                =#
 
                 tic()
                 BtDual = cyclic_triple_loop!(D,E,W,current_corrections,next_corrections)
                 TriTime = toq()
-  #=
-                println("\nPost iteration")
-                @show length(current_corrections)
-                @show length(current_corrections[1])
 
-                @show length(next_corrections)
-                @show length(next_corrections[1])
-                println("")
-  =#
                 cyclic_double_loop!(E,F,P,Q,W)
 
                 num_corrections = 0
